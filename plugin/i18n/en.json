@@ -1,0 +1,15 @@
+{
+  "bar.running": "OpenBot: running%1",
+  "bar.stopped": "OpenBot: stopped",
+  "panel.title": "OpenBot Dock",
+  "panel.subtitle": "OpenBot Agent Dock %1",
+  "panel.subtitleUnknown": "OpenBot Agent Dock",
+  "panel.status.running": "ON",
+  "panel.status.stopped": "OFF",
+  "panel.aboveApps.title": "Dock above other windows",
+  "panel.aboveApps.description": "Restarts OpenBot on XWayland so the dock floats at the screen edge.",
+  "panel.aboveApps.hintOn": "Dock on the right edge. To make it hide and slide out as the pointer reaches the edge, turn on “Hide automatically” in OpenBot → Settings → Agent Dock. Drag the dock to move it up or down the edge.",
+  "panel.aboveApps.hintOff": "The dock lives inside the OpenBot window. Turning this on lifts it to the screen edge, like the macOS dock.",
+  "panel.action.open": "Open OpenBot",
+  "panel.action.restart": "Restart"
+}

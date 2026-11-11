@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "admin.openbot-dock",
+  "name": "OpenBot Dock",
+  "version": "1.1.0",
+  "author": "Andre Cardoso",
+  "description": "Status e controle do Agent Dock do OpenBot no Omarchy: coloca o dock flutuante acima das janelas na borda direita, no estilo macOS.",
+  "license": "MIT",
+  "tags": [
+    "openbot",
+    "dock",
+    "agents",
+    "xwayland",
+    "macos"
+  ],
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Widget.qml"
+  },
+  "barWidget": {
+    "displayName": "OpenBot Dock",
+    "description": "Liga e desliga o dock do OpenBot que flutua sobre as janelas",
+    "category": "Status",
+    "defaultSection": "right",
+    "allowMultiple": false
+  }
+}
