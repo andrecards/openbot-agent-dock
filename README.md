@@ -1,4 +1,4 @@
-# OpenBot Dock para Omarchy
+# OpenBot Agent Dock para Omarchy
 
 Widget de barra do **Omarchy Shell** que coloca o **Agent Dock do OpenBot** na borda
 da tela, sobre as outras janelas, no estilo do dock do macOS — e reaproveita o
@@ -49,8 +49,8 @@ inteira com `unknown field 'no_border'`, deixando também de aplicar o `pin`.
 ## Instalação
 
 ```bash
-git clone git@github.com:andrecards/omarchy-openbot-dock.git
-cd omarchy-openbot-dock
+git clone git@github.com:andrecards/openbot-agent-dock.git
+cd openbot-agent-dock
 ./install.sh
 ```
 
