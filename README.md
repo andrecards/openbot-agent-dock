@@ -17,7 +17,7 @@ liga/desliga o modo flutuante do dock.
 - **Painel de controle** com: dock acima das outras janelas, abrir o OpenBot e
   reiniciar o app.
 - **Comando de terminal** (`openbot-dock-ctl.sh`) com `status`, `open`,
-  `dock-on`, `dock-off` e `restart`.
+  `dock-on`, `dock-off`, `restart`, `island-off` e `island-on`.
 - **IPC do shell** para automações: `omarchy-shell admin.openbot-dock toggle`.
 
 ## Como o dock aparece
@@ -29,11 +29,15 @@ peças, e o projeto cuida das três:
 | Peça | Onde fica | Papel |
 | --- | --- | --- |
 | Marcador XWayland | `~/.config/OpenBot/agent-dock-xwayland` | Faz o OpenBot subir em XWayland, condição para a janela do dock ficar acima dos apps. |
-| Regra do Hyprland | `hypr/openbot-dock.lua` | Marca as janelas flutuantes do OpenBot com `pin`: dock em todos os workspaces, acima das janelas comuns. |
+| Regra do Hyprland | `hypr/openbot-dock.lua` | Marca as janelas flutuantes do OpenBot com `pin`: dock em todos os workspaces, acima das janelas comuns. `no_shadow` evita a sombra do compositor em volta do painel transparente. |
 | Preferência do app | `localStorage` do OpenBot | Escolhe borda direita, auto-hide e faixa fina na borda. |
 
 O auto-hide e a faixa da borda são opções nativas do OpenBot. O plugin liga o
 modo flutuante; o comportamento de esconder/mostrar é do próprio app.
+
+Cuidado com regra de janela no Hyprland 0.56: `no_border` **não** é um campo
+válido aí (existe só em `workspace_rule`) e faz o compositor recusar a regra
+inteira com `unknown field 'no_border'`, deixando também de aplicar o `pin`.
 
 ## Requisitos
 
@@ -80,7 +84,27 @@ Para remover:
 ~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh dock-on
 ~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh dock-off
 ~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh restart
+~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh island-off
+~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh island-on
 ```
+
+### A Dynamic Island do OpenBot
+
+O OpenBot simula o recorte (notch) dos MacBooks: uma janela transparente de
+614×380 pontos ancorada **no topo do centro da tela**. No Linux não existe
+notch, então ela fica sobre a barra do Omarchy — cobrindo relógio, data e
+indicadores — e, por ser transparente, aparece como um retângulo preto com
+moldura. O app não tem ajuste de posição: o topo é fixo no código.
+
+Como a barra do Omarchy já mostra o status dos agentes, o plugin trata a ilha
+como redundante:
+
+```bash
+openbot-dock-ctl.sh island-off   # grava a preferência e reinicia o app
+openbot-dock-ctl.sh island-on    # desfaz, volta ao padrão do app
+```
+
+O `status` informa em que estado a ilha está (`island=on|off`).
 
 ### IPC
 
@@ -114,9 +138,10 @@ estado que ainda vai mudar.
 
 ## Limitações conhecidas
 
-- O OpenBot cria uma janela secundária transparente (~492×304). Em alguns
-  momentos ela aparece como um painel vazio com a borda do Hyprland; é um
-  comportamento do app, não do widget.
+- A **Dynamic Island** do OpenBot nasce sempre no topo do centro da tela e não
+  tem opção de posição no app. Se você quiser usá-la mesmo assim, ela vai
+  dividir espaço com a barra do Omarchy; o caminho limpo é mantê-la desligada
+  (`island-off`).
 - O dock fica ligeiramente acima do centro vertical até ser arrastado: a
   posição é um deslocamento guardado pelo OpenBot por monitor.
 - Testado apenas em Hyprland com config Lua. Em configs `.conf` antigas a regra

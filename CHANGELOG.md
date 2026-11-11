@@ -3,11 +3,22 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
 e versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
-## [Não lançado]
+## [1.2.0] - 2026-11-11
 
-### Em investigação
-- Janela secundária transparente do OpenBot (~492×304) pode aparecer como um
-  painel vazio com a borda do Hyprland.
+### Adicionado
+- `island-off` e `island-on` no `openbot-dock-ctl.sh`, para ligar e desligar a
+  **Dynamic Island** do OpenBot. O `status` agora informa `island=on|off`.
+
+### Corrigido
+- Retângulo preto/translúcido vazio, sem conteúdo, aparecendo no topo do centro
+  da tela e cobrindo o relógio e a data da barra. Era a janela da **Dynamic
+  Island** do OpenBot — 614×380 na escala de 125% do app, ou seja 492×304 na
+  tela, ancorada na borda superior. Fora do macOS a ilha não tem o que mostrar,
+  mas continua sendo uma janela transparente e ocupa a faixa da barra.
+- Regra do Hyprland passou a declarar `no_shadow`: as janelas flutuantes do
+  OpenBot são painéis transparentes e não devem receber sombra do compositor.
+  O campo `no_border` **não** existe em regra de janela (só em `workspace_rule`)
+  e fazia o Hyprland recusar a regra inteira com `unknown field`.
 
 ## [1.1.0] - 2026-11-11
 
