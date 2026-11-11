@@ -12,8 +12,9 @@ e versionamento [SemVer](https://semver.org/lang/pt-BR/).
 ### Removido
 - Flag `--enable-transparent-visuals` do `openbot-dock-ctl.sh`: ela não existe no Chromium 152 do OpenBot e não tinha efeito. A transparência vem da profundidade X11 32, escolhida pelo Chromium quando o Hyprland é dono de `_NET_WM_CM_S0`.
 
-### Problema conhecido no OpenBot 0.67.1 (aparentemente corrigido na 0.68.0)
-- Com o OpenBot 0.68.0, 340 eventos de arrastar o dock não produziram nenhum quadro preto (amostragem de ~5 capturas/s); na 0.67.1, a primeira rajada já produzia a piscada. A 0.68.0 refez o trecho que aplica a forma do dock (`#applyShape`, com zoom). Use o OpenBot 0.68.0 ou mais novo.
+### Problemas conhecidos (no OpenBot, não no plugin)
+- **OpenBot 0.68.0, ao mudar o "Tamanho do dock"** (Configurações do OpenBot, controle deslizante): enquanto o controle é arrastado, o dock pisca em preto. O app muda o tamanho real da janela X11 a cada passo, e no XWayland cada tamanho novo começa com um buffer preto até o Chromium pintar. Some assim que o controle é solto; com o tamanho fixo, o dock fica estável. Não há regra do Hyprland que evite isso.
+- **Piscada no uso normal: aparentemente corrigida na 0.68.0.** Com o OpenBot 0.68.0, 340 eventos de arrastar o dock não produziram nenhum quadro preto (amostragem de ~5 capturas/s); na 0.67.1, a primeira rajada já produzia a piscada. A 0.68.0 refez o trecho que aplica a forma do dock (`#applyShape`, com zoom). Use o OpenBot 0.68.0 ou mais novo.
 - Piscada preta curta no dock (e, às vezes, um retângulo preto que só some ao trocar de workspace). Em X11, o OpenBot recorta a janela do dock com `setShape` a cada mudança da região de entrada (hover, chat, arrastar); o XWayland do Hyprland não recorta a imagem pela forma, e a área fora do recorte aparece preta até o Chromium repintar. Não há correção possível pelo compositor nem pelo plugin; o dock não existe em Wayland nativo (`aboveAppsWindowKind()` devolve `null`). A correção precisa vir do OpenBot.
 
 ## [1.3.0] - 2026-11-11
