@@ -3,6 +3,12 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
 e versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.5.1] - 2026-11-11
+
+### Corrigido
+- Paleta "Omarchy" para temas no formato antigo do Omarchy (`color0`..`color15`, `selection_background`, sem `muted`/`selection`): antes o gerador falhava neles; agora os tons neutros que faltam (superfície, borda, texto secundário, moldura) são calculados da mistura do fundo com o texto. Testado nos 26 temas instalados (23 do sistema e 3 do usuário, claros e escuros): todos geram paleta válida.
+- `openbot-omarchy-palette.py [colors.toml] [saída.json]` aceita um tema e um destino para testes, sem trocar o tema do sistema.
+
 ## [1.5.0] - 2026-11-11
 
 ### Adicionado

@@ -23,3 +23,4 @@ Thumbs.db
 
 # Capturas locais: só entram no repositório depois da avaliação manual
 capturas/
+__pycache__/
