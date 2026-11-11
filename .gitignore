@@ -1,0 +1,25 @@
+# Artefatos temporários, builds e sobras de ferramentas
+*.log
+*.tmp
+*.bak
+*.bak-*
+*.orig
+*.rej
+*~
+
+# Scratchpad local (scripts de teste, dumps, rascunhos)
+.scratchpad/
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+.cache/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Capturas locais: só entram no repositório depois da avaliação manual
+capturas/
