@@ -19,6 +19,8 @@ BarWidget {
   property bool running: false
   property bool aboveApps: false
   property string version: ""
+  // "system" = paleta do tema do Omarchy; "default" = tema escuro do OpenBot.
+  property string theme: "default"
   property bool popupOpen: false
   property string pendingAction: ""
   property bool actionBusy: false
@@ -40,6 +42,7 @@ BarWidget {
     if (values.running !== undefined) root.running = values.running === "1"
     if (values.above_apps !== undefined) root.aboveApps = values.above_apps === "1"
     if (values.version !== undefined) root.version = values.version
+    if (values.theme !== undefined) root.theme = values.theme
   }
 
   function refresh() {
@@ -227,6 +230,55 @@ BarWidget {
         text: root.aboveApps
           ? strings.t("panel.aboveApps.hintOn")
           : strings.t("panel.aboveApps.hintOff")
+        color: Util.alpha(Color.popups.text, 0.62)
+        font.family: root.bar ? root.bar.fontFamily : Style.font.family
+        font.pixelSize: Style.font.caption
+        wrapMode: Text.WordWrap
+      }
+
+      PanelSeparator { Layout.fillWidth: true }
+
+      Text {
+        Layout.fillWidth: true
+        textFormat: Text.PlainText
+        text: strings.t("panel.theme.title")
+        color: Color.popups.text
+        font.family: root.bar ? root.bar.fontFamily : Style.font.family
+        font.pixelSize: Style.font.body
+        font.bold: true
+      }
+
+      RowLayout {
+        Layout.fillWidth: true
+        spacing: Style.space(8)
+
+        Button {
+          Layout.fillWidth: true
+          text: strings.t("panel.theme.system")
+          bordered: true
+          selected: root.theme === "system"
+          foreground: Color.popups.text
+          accent: Color.accent
+          enabled: !root.actionBusy
+          onClicked: if (root.theme !== "system") root.runAction("theme-system")
+        }
+
+        Button {
+          Layout.fillWidth: true
+          text: strings.t("panel.theme.default")
+          bordered: true
+          selected: root.theme === "default"
+          foreground: Color.popups.text
+          accent: Color.accent
+          enabled: !root.actionBusy
+          onClicked: if (root.theme !== "default") root.runAction("theme-default")
+        }
+      }
+
+      Text {
+        Layout.fillWidth: true
+        textFormat: Text.PlainText
+        text: root.theme === "system" ? strings.t("panel.theme.hintSystem") : strings.t("panel.theme.hintDefault")
         color: Util.alpha(Color.popups.text, 0.62)
         font.family: root.bar ? root.bar.fontFamily : Style.font.family
         font.pixelSize: Style.font.caption

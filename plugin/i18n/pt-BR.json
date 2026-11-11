@@ -11,5 +11,10 @@
   "panel.aboveApps.hintOn": "Dock ligado na borda direita. Para ele se esconder e aparecer quando o mouse chega perto, ative “Ocultar automaticamente” em OpenBot → Configurações → Agent Dock. A posição vertical se ajusta arrastando o dock.",
   "panel.aboveApps.hintOff": "O dock fica dentro da janela do OpenBot. Ligando aqui, ele sai para a borda da tela como no macOS.",
   "panel.action.open": "Abrir OpenBot",
-  "panel.action.restart": "Reiniciar"
+  "panel.action.restart": "Reiniciar",
+  "panel.theme.title": "Tema do dock",
+  "panel.theme.system": "Sistema",
+  "panel.theme.default": "Padrão",
+  "panel.theme.hintSystem": "Segue o tema do Omarchy: ao trocar de tema, o OpenBot muda junto, sem reiniciar.",
+  "panel.theme.hintDefault": "Tema escuro do OpenBot. “Sistema” passa a seguir o tema do Omarchy (o OpenBot reinicia uma vez)."
 }

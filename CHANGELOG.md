@@ -3,6 +3,17 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
 e versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.5.0] - 2026-11-11
+
+### Adicionado
+- Tema do dock: botões **Sistema** e **Padrão** no painel do widget. "Sistema" escolhe a paleta "Omarchy" do OpenBot; "Padrão" volta ao tema escuro do app. Trocar reinicia o OpenBot uma vez (ele só lê a escolha de paleta ao iniciar).
+- `plugin/openbot-omarchy-palette.py`: gera `~/.config/OpenBot/themes/omarchy.json` a partir do `colors.toml` do tema atual do Omarchy (12 cores + claro/escuro, gravação atômica). O OpenBot vigia essa pasta e aplica a paleta ao vivo.
+- `hooks/theme-set.d/openbot-palette`: gancho do Omarchy que regenera a paleta a cada troca de tema; instalado e removido pelo `install.sh`.
+- `openbot-dock-ctl.sh theme-system` / `theme-default`, e `theme=` no `status`.
+
+### Problema conhecido (no OpenBot / XWayland, não no plugin)
+- Cliques na área transparente em volta do dock não chegam aos apps de baixo: a janela do dock (562×512) é maior que a parte visível, e o Hyprland entrega o ponteiro à superfície XWayland inteira. Copiar a forma visível do X11 para a forma de entrada foi testado e não resolve, porque o XWayland não repassa a forma de entrada à superfície Wayland.
+
 ## [1.4.0] - 2026-11-11
 
 ### Corrigido

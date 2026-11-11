@@ -11,5 +11,10 @@
   "panel.aboveApps.hintOn": "Dock on the right edge. To make it hide and slide out as the pointer reaches the edge, turn on “Hide automatically” in OpenBot → Settings → Agent Dock. Drag the dock to move it up or down the edge.",
   "panel.aboveApps.hintOff": "The dock lives inside the OpenBot window. Turning this on lifts it to the screen edge, like the macOS dock.",
   "panel.action.open": "Open OpenBot",
-  "panel.action.restart": "Restart"
+  "panel.action.restart": "Restart",
+  "panel.theme.title": "Dock theme",
+  "panel.theme.system": "System",
+  "panel.theme.default": "Default",
+  "panel.theme.hintSystem": "Follows the Omarchy theme: when you switch themes, OpenBot changes too, without a restart.",
+  "panel.theme.hintDefault": "OpenBot dark theme. “System” follows the Omarchy theme instead (OpenBot restarts once)."
 }

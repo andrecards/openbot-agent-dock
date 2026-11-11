@@ -5,8 +5,9 @@
 #   1. copia o plugin para ~/.config/omarchy/plugins/admin.openbot-dock
 #   2. instala a regra do Hyprland em ~/.config/hypr/openbot-dock.lua
 #   3. garante o require("hypr.openbot-dock") no hyprland.lua (idempotente)
-#   4. habilita o widget na seção direita da barra
-#   5. reinicia o shell
+#   4. instala o gancho de tema do Omarchy (paleta "Omarchy" do OpenBot)
+#   5. habilita o widget na seção direita da barra
+#   6. reinicia o shell
 #
 # Uso:
 #   ./install.sh              instala
@@ -23,6 +24,7 @@ HYPR_DIR="$CONFIG/hypr"
 RULE_FILE="$HYPR_DIR/openbot-dock.lua"
 HYPR_CONFIG="$HYPR_DIR/hyprland.lua"
 REQUIRE_LINE='require("hypr.openbot-dock")'
+HOOK_FILE="$CONFIG/omarchy/hooks/theme-set.d/openbot-palette"
 
 UNINSTALL=0
 RESTART=1
@@ -50,6 +52,9 @@ if [[ $UNINSTALL -eq 1 ]]; then
   echo "→ removendo o plugin"
   rm -rf "$PLUGIN_DIR"
 
+  echo "→ removendo o gancho de tema"
+  rm -f "$HOOK_FILE"
+
   echo "→ removendo a regra do Hyprland"
   rm -f "$RULE_FILE"
   if [[ -f $HYPR_CONFIG ]]; then
@@ -67,7 +72,13 @@ fi
 echo "→ instalando o plugin em $PLUGIN_DIR"
 mkdir -p "$PLUGIN_DIR"
 cp -a "$ROOT/plugin/." "$PLUGIN_DIR/"
-chmod +x "$PLUGIN_DIR/openbot-dock-ctl.sh"
+chmod +x "$PLUGIN_DIR/openbot-dock-ctl.sh" "$PLUGIN_DIR/openbot-omarchy-palette.py"
+
+echo "→ instalando o gancho de tema em $HOOK_FILE"
+mkdir -p "$(dirname "$HOOK_FILE")"
+cp -a "$ROOT/hooks/theme-set.d/openbot-palette" "$HOOK_FILE"
+chmod +x "$HOOK_FILE"
+python3 -I "$PLUGIN_DIR/openbot-omarchy-palette.py" >/dev/null 2>&1 || echo "  aviso: não deu para gerar a paleta do Omarchy agora"
 
 echo "→ instalando a regra do Hyprland em $RULE_FILE"
 mkdir -p "$HYPR_DIR"

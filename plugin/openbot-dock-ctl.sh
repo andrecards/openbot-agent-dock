@@ -7,7 +7,13 @@
 # Wayland relança o app com --ozone-platform=x11. Este script liga e desliga
 # esse marcador e reinicia o app do jeito certo.
 #
-# Uso: openbot-dock-ctl.sh status|open|dock-on|dock-off|restart|island-off|island-on
+# Uso: openbot-dock-ctl.sh status|open|dock-on|dock-off|restart|island-off|island-on|theme-system|theme-default
+#
+# theme-system usa a paleta "Omarchy" (gerada do tema atual do Omarchy em
+# ~/.config/OpenBot/themes/omarchy.json); theme-default volta ao tema escuro do
+# OpenBot. O OpenBot só lê a escolha de paleta ao iniciar, então o app é
+# reiniciado se estiver aberto. Já a troca de tema do Omarchy, com a paleta
+# escolhida, chega ao app ao vivo: ele vigia a pasta themes/.
 #
 # island-off desliga a Dynamic Island do OpenBot. Ela é uma janela transparente
 # de ~492x304 ancorada no topo da tela: fora do macOS o conteúdo dela fica
@@ -20,6 +26,8 @@ set -uo pipefail
 APP_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/OpenBot"
 MARKER="$APP_DIR/agent-dock-xwayland"
 ISLAND_PREF="$APP_DIR/openbot-dynamic-island-preference-v1.json"
+APPEARANCE_PREF="$APP_DIR/openbot-appearance-preference-v1.json"
+PALETTE_SCRIPT="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/openbot-omarchy-palette.py"
 IMAGES_DIR="$HOME/.local/share/AppImages"
 
 # O AppImage mais recente de verdade (o wrapper quebrado de 600 bytes fica fora).
@@ -109,17 +117,58 @@ stop_app() {
   rm -f "$APP_DIR"/Singleton* "$APP_DIR"/gpu-crash.json "$APP_DIR"/gpu-start.json 2>/dev/null
 }
 
-restart_app() {
+start_app() {
   local img
   img=$(find_appimage) || { echo "appimage=missing"; exit 1; }
-  stop_app
-  sleep 0.3
   rm -f "$APP_DIR"/gpu-crash.json "$APP_DIR"/gpu-start.json 2>/dev/null
   if [[ -f $MARKER ]]; then
     launch_app "$img" --ozone-platform=x11
   else
     launch_app "$img"
   fi
+}
+
+restart_app() {
+  find_appimage >/dev/null || { echo "appimage=missing"; exit 1; }
+  stop_app
+  sleep 0.3
+  start_app
+}
+
+# system = paleta "Omarchy"; default = tema escuro do OpenBot.
+theme_state() {
+  [[ -f $APPEARANCE_PREF ]] || { echo default; return 0; }
+  jq -r 'if .palette == "omarchy" then "system" else "default" end' "$APPEARANCE_PREF" 2>/dev/null || echo default
+}
+
+theme_set() {
+  local wanted=$1 filter tmp was_running=0
+  if [[ $wanted == system ]]; then
+    # Gera a paleta antes de escolhê-la: sem o arquivo, o OpenBot não teria o que mostrar.
+    python3 -I "$PALETTE_SCRIPT" >/dev/null || { echo "theme=erro (paleta do Omarchy não gerada)"; exit 1; }
+    filter='.palette = "omarchy"'
+  else
+    filter='.palette = null | .appearance = "dark"'
+  fi
+  if [[ $(theme_state) == "$wanted" ]]; then
+    echo "theme=$wanted (já estava assim, app não foi reiniciado)"
+    return 0
+  fi
+  # O app regrava esse arquivo quando o tema muda nele, então a escrita é feita com ele fechado.
+  app_running && was_running=1
+  ((was_running)) && stop_app
+  mkdir -p "$APP_DIR"
+  tmp=$(mktemp "$APP_DIR/.appearance.XXXXXX")
+  if [[ -f $APPEARANCE_PREF ]]; then
+    jq "$filter | .themeChosen = true" "$APPEARANCE_PREF" > "$tmp"
+  else
+    jq -n "{version: 1, appearance: \"dark\", transparentWindow: false, palette: null,
+            chatBackgroundLight: null, chatBackgroundDark: null, themeChosen: true} | $filter" > "$tmp"
+  fi || { rm -f "$tmp"; echo "theme=erro (preferência de aparência ilegível)"; exit 1; }
+  chmod 600 "$tmp"
+  mv -f "$tmp" "$APPEARANCE_PREF"
+  ((was_running)) && start_app
+  return 0
 }
 
 focus_app() {
@@ -143,6 +192,7 @@ status() {
   echo "running=$(app_running && echo 1 || echo 0)"
   echo "above_apps=$(above_apps)"
   echo "island=$(island_state)"
+  echo "theme=$(theme_state)"
   echo "version=$version"
   echo "appimage=$img"
 }
@@ -155,13 +205,8 @@ case "${1:-status}" in
     if app_running; then
       focus_app || true
     else
-      img=$(find_appimage) || { echo "OpenBot não encontrado em $IMAGES_DIR"; exit 1; }
-      rm -f "$APP_DIR"/gpu-crash.json "$APP_DIR"/gpu-start.json 2>/dev/null
-      if [[ -f $MARKER ]]; then
-        launch_app "$img" --ozone-platform=x11
-      else
-        launch_app "$img"
-      fi
+      find_appimage >/dev/null || { echo "OpenBot não encontrado em $IMAGES_DIR"; exit 1; }
+      start_app
     fi
     ;;
   dock-on)
@@ -190,8 +235,16 @@ case "${1:-status}" in
     island_set on
     status
     ;;
+  theme-system)
+    theme_set system
+    status
+    ;;
+  theme-default)
+    theme_set default
+    status
+    ;;
   *)
-    echo "uso: $(basename "$0") status|open|dock-on|dock-off|restart|island-off|island-on" >&2
+    echo "uso: $(basename "$0") status|open|dock-on|dock-off|restart|island-off|island-on|theme-system|theme-default" >&2
     exit 2
     ;;
 esac
