@@ -147,10 +147,21 @@ Depois de uma falha do processo de GPU (`GPU process launch failed`), o app grav
 `~/.config/OpenBot/gpu-crash.json`. Enquanto esse arquivo existir, o app sobe sem
 aceleração e as janelas transparentes tendem a sair pretas.
 
-O script `openbot-dock-ctl.sh` limpa sistematicamente os marcadores `gpu-crash.json`
-e `gpu-start.json` antes de iniciar ou reiniciar o app com a flag
-`--enable-transparent-visuals`. Além disso, a regra de janela no Hyprland
-(`hypr/openbot-dock.lua`) desativa borda (`border_size = 0`), blur (`no_blur = true`),
-arredondamento (`rounding = 0`), escurecimento de foco (`no_dim = true`) e animações
-(`no_anim = true`), assegurando que em repouso a área do chat seja 100% transparente
-e a interface de conversa abra fluidamente sob clique no agente.
+O script `openbot-dock-ctl.sh` limpa os marcadores `gpu-crash.json` e
+`gpu-start.json` antes de iniciar ou reiniciar o app. A flag
+`--enable-transparent-visuals` **não é usada**: ela não existe no Chromium 152 do
+OpenBot. O Chromium decide sozinho pela janela com alfa (profundidade X11 32)
+quando há um gerenciador de composição dono de `_NET_WM_CM_S0`, e o Hyprland é.
+
+A regra de janela no Hyprland (`hypr/openbot-dock.lua`) desativa borda
+(`border_size = 0`), blur (`no_blur = true`), arredondamento (`rounding = 0`),
+escurecimento (`no_dim = true`) e animações (`no_anim = true`). Também tem
+`no_follow_mouse = true`: com `input:follow_mouse = 1`, o Hyprland passava o foco
+para o dock a cada passada do mouse, e cada troca de foco fazia o Chromium
+repintar a janela transparente, o que aparecia como uma piscada preta. O clique
+continua dando foco ao dock (`no_focus` impediria o chat do dock de receber teclado).
+
+A janela principal do OpenBot recebe `render_unfocused = true`. Ela processa as
+ações do dock (`agent-dock:action`) e alimenta o chat dele; sem essa regra, o
+Hyprland deixa de renderizá-la quando ela está num workspace fora da tela, e os
+bots do dock só respondiam no workspace onde ela estava.

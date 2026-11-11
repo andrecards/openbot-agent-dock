@@ -15,6 +15,9 @@
 -- `rounding = 0` evita cantos arredondados fantasmas na janela transparente.
 -- `no_dim = true` impede escurecimento quando a janela perde o foco.
 -- `no_anim = true` desativa animações na janela transparente da dock.
+-- `no_follow_mouse = true`: com input:follow_mouse = 1, passar o mouse dava foco ao
+-- dock e cada troca de foco repintava a janela transparente (piscada preta). A regra
+-- tira só o foco por hover; o clique continua focando, e o chat do dock aceita teclado.
 o.window({ class = "^(openbot)$", float = true }, {
   pin = true,
   no_shadow = true,
@@ -23,4 +26,14 @@ o.window({ class = "^(openbot)$", float = true }, {
   rounding = 0,
   no_dim = true,
   no_anim = true,
+  no_follow_mouse = true,
+})
+
+-- Janela principal do OpenBot (a que não flutua): é ela que processa os cliques
+-- do dock e alimenta o chat dele. Em um workspace fora da tela, o Hyprland para
+-- de renderizá-la e o Chromium dela trava, e aí os bots do dock só respondiam no
+-- workspace onde o OpenBot estava. `render_unfocused` mantém essa janela recebendo
+-- quadros mesmo fora da tela.
+o.window({ class = "^(openbot)$", float = false }, {
+  render_unfocused = true,
 })

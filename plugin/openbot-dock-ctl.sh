@@ -116,7 +116,7 @@ restart_app() {
   sleep 0.3
   rm -f "$APP_DIR"/gpu-crash.json "$APP_DIR"/gpu-start.json 2>/dev/null
   if [[ -f $MARKER ]]; then
-    launch_app "$img" --ozone-platform=x11 --enable-transparent-visuals
+    launch_app "$img" --ozone-platform=x11
   else
     launch_app "$img"
   fi
@@ -158,7 +158,7 @@ case "${1:-status}" in
       img=$(find_appimage) || { echo "OpenBot não encontrado em $IMAGES_DIR"; exit 1; }
       rm -f "$APP_DIR"/gpu-crash.json "$APP_DIR"/gpu-start.json 2>/dev/null
       if [[ -f $MARKER ]]; then
-        launch_app "$img" --ozone-platform=x11 --enable-transparent-visuals
+        launch_app "$img" --ozone-platform=x11
       else
         launch_app "$img"
       fi

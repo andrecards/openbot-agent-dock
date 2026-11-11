@@ -3,6 +3,18 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
 e versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.4.0] - 2026-11-11
+
+### Corrigido
+- Foco pulando para o dock ao passar o mouse: com `input:follow_mouse = 1`, o Hyprland dava o foco à janela do dock a cada hover. A regra `hypr/openbot-dock.lua` agora tem `no_follow_mouse = true` (tira só o foco por hover; `no_focus` foi descartado porque impedia o chat do dock de receber teclado).
+- Bots do dock só respondiam no workspace onde a janela principal do OpenBot estava: o Hyprland não renderiza janelas fora da tela, e a janela principal é quem processa as ações do dock. Nova regra com `render_unfocused = true` só para a janela principal.
+
+### Removido
+- Flag `--enable-transparent-visuals` do `openbot-dock-ctl.sh`: ela não existe no Chromium 152 do OpenBot e não tinha efeito. A transparência vem da profundidade X11 32, escolhida pelo Chromium quando o Hyprland é dono de `_NET_WM_CM_S0`.
+
+### Problema conhecido (no OpenBot, não no plugin)
+- Piscada preta curta no dock (e, às vezes, um retângulo preto que só some ao trocar de workspace). Em X11, o OpenBot recorta a janela do dock com `setShape` a cada mudança da região de entrada (hover, chat, arrastar); o XWayland do Hyprland não recorta a imagem pela forma, e a área fora do recorte aparece preta até o Chromium repintar. Não há correção possível pelo compositor nem pelo plugin; o dock não existe em Wayland nativo (`aboveAppsWindowKind()` devolve `null`). A correção precisa vir do OpenBot.
+
 ## [1.3.0] - 2026-11-11
 
 ### Corrigido
