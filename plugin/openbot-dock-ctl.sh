@@ -7,12 +7,19 @@
 # Wayland relança o app com --ozone-platform=x11. Este script liga e desliga
 # esse marcador e reinicia o app do jeito certo.
 #
-# Uso: openbot-dock-ctl.sh status|open|dock-on|dock-off|restart
+# Uso: openbot-dock-ctl.sh status|open|dock-on|dock-off|restart|island-off|island-on
+#
+# island-off desliga a Dynamic Island do OpenBot. Ela é uma janela transparente
+# de ~492x304 ancorada no topo da tela: fora do macOS o conteúdo dela fica
+# vazio, e o Hyprland ainda desenha moldura e sombra em volta — o que aparece
+# como um retângulo fantasma sobre os outros apps. Como a barra do Omarchy já
+# mostra o status dos agentes, desligar a ilha não tira informação útil.
 
 set -uo pipefail
 
 APP_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/OpenBot"
 MARKER="$APP_DIR/agent-dock-xwayland"
+ISLAND_PREF="$APP_DIR/openbot-dynamic-island-preference-v1.json"
 IMAGES_DIR="$HOME/.local/share/AppImages"
 
 # O AppImage mais recente de verdade (o wrapper quebrado de 600 bytes fica fora).
@@ -43,6 +50,36 @@ app_version() {
 
 above_apps() {
   [[ -f $MARKER ]] && echo 1 || echo 0
+}
+
+# on / off / unknown (arquivo ausente = a ilha está ligada por padrão no app).
+island_state() {
+  [[ -f $ISLAND_PREF ]] || { echo on; return 0; }
+  if command -v jq >/dev/null; then
+    jq -r 'if (.enabled == false) then "off" else "on" end' "$ISLAND_PREF" 2>/dev/null || echo unknown
+  else
+    grep -q '"enabled"[[:space:]]*:[[:space:]]*false' "$ISLAND_PREF" && echo off || echo on
+  fi
+}
+
+island_set() {
+  local wanted=$1 changed=0
+  [[ $(island_state) == "$wanted" ]] || changed=1
+  if [[ $wanted == off ]]; then
+    mkdir -p "$APP_DIR"
+    cat > "$ISLAND_PREF" <<'JSON'
+{"version":3,"enabled":false,"hapticsEnabled":false,"idleVisible":false,"additionalDisplaysEnabled":false,"widthPercent":100,"heightPercent":100,"serverVisibility":{},"newServersVisible":false}
+JSON
+    chmod 600 "$ISLAND_PREF"
+  else
+    rm -f "$ISLAND_PREF"
+  fi
+  # A preferência só é lida na inicialização do app.
+  if [[ $changed -eq 1 ]]; then
+    app_running && restart_app
+  else
+    echo "island=$wanted (já estava assim, app não foi reiniciado)"
+  fi
 }
 
 launch_app() {
@@ -100,6 +137,7 @@ status() {
   version=$(app_version "$img")
   echo "running=$(app_running && echo 1 || echo 0)"
   echo "above_apps=$(above_apps)"
+  echo "island=$(island_state)"
   echo "version=$version"
   echo "appimage=$img"
 }
@@ -137,8 +175,16 @@ case "${1:-status}" in
     restart_app
     status
     ;;
+  island-off)
+    island_set off
+    status
+    ;;
+  island-on)
+    island_set on
+    status
+    ;;
   *)
-    echo "uso: $(basename "$0") status|open|dock-on|dock-off|restart" >&2
+    echo "uso: $(basename "$0") status|open|dock-on|dock-off|restart|island-off|island-on" >&2
     exit 2
     ;;
 esac

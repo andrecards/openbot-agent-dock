@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "admin.openbot-dock",
   "name": "OpenBot Dock",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": "Andre Cardoso",
   "description": "Status e controle do Agent Dock do OpenBot no Omarchy: coloca o dock flutuante acima das janelas na borda direita, no estilo macOS.",
   "license": "MIT",
