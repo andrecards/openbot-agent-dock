@@ -18,6 +18,8 @@
 -- `no_follow_mouse = true`: com input:follow_mouse = 1, passar o mouse dava foco ao
 -- dock e cada troca de foco repintava a janela transparente (piscada preta). A regra
 -- tira só o foco por hover; o clique continua focando, e o chat do dock aceita teclado.
+-- `decorate = false`: o Hyprland trata o dock X11 como janela comum; sem isso, o modo de workspace
+-- flutuante do Omarchy (Super+L) põe nele a barra de título do hyprbars.
 o.window({ class = "^(openbot)$", float = true }, {
   pin = true,
   no_shadow = true,
@@ -27,6 +29,7 @@ o.window({ class = "^(openbot)$", float = true }, {
   no_dim = true,
   no_anim = true,
   no_follow_mouse = true,
+  decorate = false,
 })
 
 -- Janela principal do OpenBot (a que não flutua): é ela que processa os cliques
