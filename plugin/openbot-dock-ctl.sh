@@ -90,7 +90,10 @@ launch_app() {
 }
 
 stop_app() {
-  app_running || return 0
+  app_running || {
+    rm -f "$APP_DIR"/Singleton* "$APP_DIR"/gpu-crash.json "$APP_DIR"/gpu-start.json 2>/dev/null
+    return 0
+  }
   pkill -x openbot 2>/dev/null
   local i
   for i in $(seq 1 60); do
@@ -102,7 +105,8 @@ stop_app() {
     sleep 0.2
   fi
   # Um encerramento à força deixa as travas do Electron apontando para um PID morto.
-  rm -f "$APP_DIR"/Singleton* 2>/dev/null
+  # Remove sistematicamente marcadores de falha da GPU para evitar software rendering.
+  rm -f "$APP_DIR"/Singleton* "$APP_DIR"/gpu-crash.json "$APP_DIR"/gpu-start.json 2>/dev/null
 }
 
 restart_app() {
@@ -110,8 +114,9 @@ restart_app() {
   img=$(find_appimage) || { echo "appimage=missing"; exit 1; }
   stop_app
   sleep 0.3
+  rm -f "$APP_DIR"/gpu-crash.json "$APP_DIR"/gpu-start.json 2>/dev/null
   if [[ -f $MARKER ]]; then
-    launch_app "$img" --ozone-platform=x11
+    launch_app "$img" --ozone-platform=x11 --enable-transparent-visuals
   else
     launch_app "$img"
   fi
@@ -151,8 +156,9 @@ case "${1:-status}" in
       focus_app || true
     else
       img=$(find_appimage) || { echo "OpenBot não encontrado em $IMAGES_DIR"; exit 1; }
+      rm -f "$APP_DIR"/gpu-crash.json "$APP_DIR"/gpu-start.json 2>/dev/null
       if [[ -f $MARKER ]]; then
-        launch_app "$img" --ozone-platform=x11
+        launch_app "$img" --ozone-platform=x11 --enable-transparent-visuals
       else
         launch_app "$img"
       fi
@@ -161,6 +167,7 @@ case "${1:-status}" in
   dock-on)
     mkdir -p "$APP_DIR"
     : > "$MARKER"
+    rm -f "$APP_DIR"/gpu-crash.json "$APP_DIR"/gpu-start.json 2>/dev/null
     restart_app
     status
     ;;

@@ -10,9 +10,17 @@
 -- principal do OpenBot não é flutuante e continua com o tiling normal.
 --
 -- `no_shadow` evita a sombra do compositor em volta de um painel transparente.
--- Não use `no_border` aqui: esse campo só existe em `workspace_rule`; em regra
--- de janela o Hyprland recusa a regra inteira com "unknown field 'no_border'".
+-- `border_size = 0` elimina a moldura padrão desenhada pelo Hyprland.
+-- `no_blur = true` impede que o compositor aplique blur na área vazia da janela.
+-- `rounding = 0` evita cantos arredondados fantasmas na janela transparente.
+-- `no_dim = true` impede escurecimento quando a janela perde o foco.
+-- `no_anim = true` desativa animações na janela transparente da dock.
 o.window({ class = "^(openbot)$", float = true }, {
   pin = true,
   no_shadow = true,
+  border_size = 0,
+  no_blur = true,
+  rounding = 0,
+  no_dim = true,
+  no_anim = true,
 })

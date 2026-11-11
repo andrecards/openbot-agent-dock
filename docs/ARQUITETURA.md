@@ -145,5 +145,12 @@ certo, ele mesmo remove o marcador.
 
 Depois de uma falha do processo de GPU (`GPU process launch failed`), o app grava
 `~/.config/OpenBot/gpu-crash.json`. Enquanto esse arquivo existir, o app sobe sem
-aceleração e as janelas transparentes tendem a sair pretas. Apagar os dois
-marcadores com o app fechado é o caminho para voltar ao renderizador normal.
+aceleração e as janelas transparentes tendem a sair pretas.
+
+O script `openbot-dock-ctl.sh` limpa sistematicamente os marcadores `gpu-crash.json`
+e `gpu-start.json` antes de iniciar ou reiniciar o app com a flag
+`--enable-transparent-visuals`. Além disso, a regra de janela no Hyprland
+(`hypr/openbot-dock.lua`) desativa borda (`border_size = 0`), blur (`no_blur = true`),
+arredondamento (`rounding = 0`), escurecimento de foco (`no_dim = true`) e animações
+(`no_anim = true`), assegurando que em repouso a área do chat seja 100% transparente
+e a interface de conversa abra fluidamente sob clique no agente.

@@ -3,6 +3,15 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
 e versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.3.0] - 2026-11-11
+
+### Corrigido
+- Fundo preto opaco quadrado na dock em repouso: o compositor Hyprland aplicava bordas de 2px, sombras e efeito de blur de vidro sobre a janela transparente flutuante do Electron. A regra em `hypr/openbot-dock.lua` agora zera explicitamente bordas (`border_size = 0`), blur (`no_blur = true`), arredondamento (`rounding = 0`), escurecimento de foco (`no_dim = true`) e animações (`no_anim = true`).
+- Prevenção de software rendering no Electron: o script `openbot-dock-ctl.sh` agora limpa preventivamente marcadores de falha de GPU (`gpu-crash.json` e `gpu-start.json`) e passa a flag `--enable-transparent-visuals` ao inicializar via XWayland, garantindo transparência alfa real de 32 bits.
+
+### Adicionado
+- Documentação técnica comparativa (`docs/RELATORIO_PROJETOS_OPENBOT_DOCK.md`) e proposta de melhorias avançadas (`docs/PROPOSTA_MELHORIAS_CLAUDE.md`).
+
 ## [1.2.0] - 2026-11-11
 
 ### Adicionado
