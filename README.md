@@ -1,182 +1,298 @@
-# OpenBot Agent Dock para Omarchy
+<div align="center">
 
-Widget de barra do **Omarchy Shell** que coloca o **Agent Dock do OpenBot** na borda
-da tela, sobre as outras janelas, no estilo do dock do macOS — e reaproveita o
-próprio dock nativo do app em vez de redesenhar um dock em QML.
+# OpenBot Agent Dock for Omarchy
 
-O widget mostra o estado do OpenBot na barra, abre um painel de controle e
-liga/desliga o modo flutuante do dock.
+**Put the OpenBot Agent Dock on the screen edge, above your windows, macOS-style.**
 
-> **Status:** em desenvolvimento ativo. Nada publicado ainda — repositório privado.
+[English](README.md) · [Português (Brasil)](README.pt-BR.md)
 
-## O que o plugin faz
+![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+![Omarchy Shell plugin](https://img.shields.io/badge/Omarchy-bar--widget-orange)
+![Hyprland 0.56 (Lua)](https://img.shields.io/badge/Hyprland-0.56%20(Lua)-informational)
+![Status: working, known issues](https://img.shields.io/badge/status-working%2C%20known%20issues-yellow)
 
-- **Ícone oficial do OpenBot** na barra, que acompanha o tema: tile branco em
-  barra escura (modo preto e modo blur) e tile preto em barra transparente,
-  com transição suave.
-- **Painel de controle** com: dock acima das outras janelas, abrir o OpenBot e
-  reiniciar o app.
-- **Comando de terminal** (`openbot-dock-ctl.sh`) com `status`, `open`,
-  `dock-on`, `dock-off`, `restart`, `island-off` e `island-on`.
-- **IPC do shell** para automações: `omarchy-shell admin.openbot-dock toggle`.
+<img src="docs/screenshots/dock-over-window.png" alt="The OpenBot dock floating on the right edge, over the OpenBot window" width="560">
 
-## Como o dock aparece
+</div>
 
-O OpenBot desenha o Agent Dock em uma janela própria, transparente e sem
-moldura. Para ela se comportar como o dock do macOS são necessárias três
-peças, e o projeto cuida das três:
+An **Omarchy Shell** bar widget that places the **OpenBot Agent Dock** on the
+edge of the screen, over other windows, like the macOS Dock. It reuses the app's
+own native dock instead of redrawing one in QML.
 
-| Peça | Onde fica | Papel |
+The widget shows the OpenBot state in the bar, opens a control panel and
+turns the floating dock mode on and off.
+
+> [!WARNING]
+> **This plugin works, but it is not finished.** Read
+> [Known issues](#known-issues) before installing. In short:
+>
+> - The dock **can still flash black** when you hover it or when it opens.
+> - The dock and the OpenBot window **do not fully follow the Omarchy theme yet**.
+> - Clicks on the transparent area around the dock **do not reach the apps below**.
+>
+> The first and third come from OpenBot itself (XWayland), not from the plugin,
+> and can only be fully fixed upstream.
+
+## Contents
+
+- [Screenshots](#screenshots)
+- [What it does](#what-it-does)
+- [How the dock appears](#how-the-dock-appears)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Known issues](#known-issues)
+- [Project layout](#project-layout)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Screenshots
+
+| Control panel (running) | Control panel (stopped) |
+| :---: | :---: |
+| ![Panel with the ACTIVE status](docs/screenshots/panel-active.png) | ![Panel with the STOPPED status](docs/screenshots/panel-stopped.png) |
+
+| Dock over the wallpaper | Dock next to the OpenBot window |
+| :---: | :---: |
+| ![The dock on the right edge, over the wallpaper](docs/screenshots/dock-on-desktop.png) | ![The dock next to the OpenBot window](docs/screenshots/dock-over-window.png) |
+
+<details>
+<summary>Full OpenBot window (personal data blurred)</summary>
+
+![Full OpenBot window with the dock on the right edge](docs/screenshots/openbot-window.png)
+
+</details>
+
+> The panel is shown with the Portuguese translation. The interface follows
+> the system language (English and Portuguese).
+
+## What it does
+
+- **Official OpenBot icon** in the bar that follows the bar theme: white tile on
+  a dark bar (black and blur modes) and black tile on a transparent bar, with a
+  smooth transition.
+- **Control panel** with: dock above other windows, open OpenBot and restart
+  the app.
+- **Terminal command** (`openbot-dock-ctl.sh`) with `status`, `open`,
+  `dock-on`, `dock-off`, `restart`, `island-off` and `island-on`.
+- **Shell IPC** for automation: `omarchy-shell io.github.andrecards.openbot-dock toggle`.
+- **Dock theme** switch (System / Default), see [Dock theme](#dock-theme-system-or-default).
+
+## How the dock appears
+
+OpenBot draws the Agent Dock in its own window: transparent and frameless. For it
+to behave like the macOS Dock, three pieces are needed, and this project handles
+all three:
+
+| Piece | Where it lives | Role |
 | --- | --- | --- |
-| Marcador XWayland | `~/.config/OpenBot/agent-dock-xwayland` | Faz o OpenBot subir em XWayland, condição para a janela do dock ficar acima dos apps. |
-| Regra do Hyprland | `hypr/openbot-dock.lua` | Marca as janelas flutuantes do OpenBot com `pin`: dock em todos os workspaces, acima das janelas comuns. `no_shadow` evita a sombra do compositor em volta do painel transparente. |
-| Preferência do app | `localStorage` do OpenBot | Escolhe borda direita, auto-hide e faixa fina na borda. |
+| XWayland marker | `~/.config/OpenBot/agent-dock-xwayland` | Makes OpenBot start under XWayland, which is what lets the dock window stay above other apps. |
+| Hyprland rule | `hypr/openbot-dock.lua` | Marks OpenBot's floating windows with `pin`: dock on every workspace, above regular windows. `no_shadow` avoids the compositor shadow around the transparent panel. |
+| App preference | OpenBot `localStorage` | Picks right edge, auto-hide and the thin edge strip. |
 
-O auto-hide e a faixa da borda são opções nativas do OpenBot. O plugin liga o
-modo flutuante; o comportamento de esconder/mostrar é do próprio app.
+Auto-hide and the edge strip are native OpenBot options. The plugin turns on the
+floating mode; the hide/show behavior belongs to the app.
 
-Cuidado com regra de janela no Hyprland 0.56: `no_border` **não** é um campo
-válido aí (existe só em `workspace_rule`) e faz o compositor recusar a regra
-inteira com `unknown field 'no_border'`, deixando também de aplicar o `pin`.
+Careful with window rules on Hyprland 0.56: `no_border` is **not** a valid field
+there (it exists only in `workspace_rule`) and makes the compositor reject the
+whole rule with `unknown field 'no_border'`, so `pin` is not applied either.
 
-## Requisitos
+For the full reasoning behind each decision, see
+[docs/ARQUITETURA.md](docs/ARQUITETURA.md) (in Portuguese).
 
-- **Omarchy** com Omarchy Shell (Quickshell).
-- **Hyprland** com configuração em Lua (testado na 0.56).
-- **OpenBot** instalado como AppImage em `~/.local/share/AppImages/`.
-- `jq`, `bash` e `hyprctl`.
+## Requirements
 
-## Instalação
+- **Omarchy** with Omarchy Shell (Quickshell).
+- **Hyprland** with a Lua config (tested on 0.56).
+- **OpenBot** installed as an AppImage in `~/.local/share/AppImages/`
+  (tested on 0.68.0).
+- `jq`, `bash` and `hyprctl`.
+
+## Installation
+
+From the Omarchy plugin marketplace:
 
 ```bash
-git clone git@github.com:andrecards/openbot-agent-dock.git
+omarchy plugin add https://github.com/andrecards/openbot-agent-dock.git --enable
+```
+
+This installs **only the widget**. For the dock to float over windows you also
+need the Hyprland rule and the theme hook, which `install.sh` sets up:
+
+```bash
+git clone https://github.com/andrecards/openbot-agent-dock.git
 cd openbot-agent-dock
 ./install.sh
 ```
 
-O `install.sh` copia o plugin para `~/.config/omarchy/plugins/admin.openbot-dock`,
-instala a regra do Hyprland em `~/.config/hypr/openbot-dock.lua`, adiciona o
-`require` no `hyprland.lua` (idempotente) e habilita o widget na barra.
+`install.sh` copies the plugin to `~/.config/omarchy/plugins/io.github.andrecards.openbot-dock`,
+installs the Hyprland rule at `~/.config/hypr/openbot-dock.lua`, adds the
+`require` to `hyprland.lua` (idempotent) and enables the widget in the bar.
 
-Depois, reinicie o shell:
+Then restart the shell:
 
 ```bash
 omarchy restart shell
 ```
 
-Para remover:
+To remove it:
 
 ```bash
 ./install.sh --uninstall
 ```
 
-## Uso
+## Usage
 
-- **Ponteiro na borda direita:** o dock desliza para fora.
-- **Arrastar o dock na vertical:** ajusta a posição (o OpenBot guarda por monitor).
-- **Clique no ícone da barra:** painel de controle.
-- **Clique do meio no ícone:** reinicia o OpenBot.
+- **Pointer on the right edge:** the dock slides out.
+- **Drag the dock vertically:** adjusts its position (OpenBot stores it per monitor).
+- **Click the bar icon:** control panel.
+- **Middle-click the icon:** restarts OpenBot.
 
-### Linha de comando
-
-```bash
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh status
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh dock-on
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh dock-off
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh restart
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh island-off
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh island-on
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh theme-system
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh theme-default
-```
-
-### Tema do dock: Sistema ou Padrão
-
-No painel do widget, a linha **Tema do dock** tem dois botões:
-
-- **Sistema:** o OpenBot (dock e janela principal) usa as cores do tema atual do
-  Omarchy. O plugin gera a paleta `~/.config/OpenBot/themes/omarchy.json` a partir
-  de `~/.local/state/omarchy/current/theme/colors.toml`, e um gancho em
-  `~/.config/omarchy/hooks/theme-set.d/openbot-palette` a regenera a cada troca de
-  tema. O OpenBot vigia essa pasta e aplica a paleta **ao vivo, sem reiniciar**.
-- **Padrão:** volta ao tema escuro do próprio OpenBot.
-
-Trocar entre Sistema e Padrão reinicia o OpenBot uma vez, porque o app só lê a
-escolha de paleta ao iniciar.
-
-### A Dynamic Island do OpenBot
-
-O OpenBot simula o recorte (notch) dos MacBooks: uma janela transparente de
-614×380 pontos ancorada **no topo do centro da tela**. No Linux não existe
-notch, então ela fica sobre a barra do Omarchy — cobrindo relógio, data e
-indicadores — e, por ser transparente, aparece como um retângulo preto com
-moldura. O app não tem ajuste de posição: o topo é fixo no código.
-
-Como a barra do Omarchy já mostra o status dos agentes, o plugin trata a ilha
-como redundante:
+### Command line
 
 ```bash
-openbot-dock-ctl.sh island-off   # grava a preferência e reinicia o app
-openbot-dock-ctl.sh island-on    # desfaz, volta ao padrão do app
+CTL=~/.config/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-dock-ctl.sh
+
+$CTL status
+$CTL dock-on
+$CTL dock-off
+$CTL restart
+$CTL island-off
+$CTL island-on
+$CTL theme-system
+$CTL theme-default
 ```
 
-O `status` informa em que estado a ilha está (`island=on|off`).
+### Dock theme: System or Default
+
+In the widget panel, the **Dock theme** row has two buttons:
+
+- **System:** OpenBot (dock and main window) uses the colors of the current
+  Omarchy theme. The plugin generates the palette `~/.config/OpenBot/themes/omarchy.json`
+  from `~/.local/state/omarchy/current/theme/colors.toml`, and a hook at
+  `~/.config/omarchy/hooks/theme-set.d/openbot-palette` regenerates it on every
+  theme change. OpenBot watches that folder and is meant to apply the palette
+  live, without restarting.
+- **Default:** goes back to OpenBot's own dark theme.
+
+Switching between System and Default restarts OpenBot once, because the app
+only reads the palette choice at startup.
+
+> [!NOTE]
+> The System theme is **experimental** and the result **does not fully match the
+> Omarchy theme yet**. See [Known issues](#known-issues).
+
+### OpenBot's Dynamic Island
+
+OpenBot simulates the MacBook notch: a transparent 614×380-point window anchored
+to the **top center of the screen**. Linux has no notch, so it sits on top of the
+Omarchy bar, covering clock, date and indicators, and because it is transparent
+it shows up as a black rectangle with a frame. The app has no position setting:
+the top anchor is fixed in its code.
+
+Since the Omarchy bar already shows agent status, the plugin treats the island
+as redundant:
+
+```bash
+openbot-dock-ctl.sh island-off   # saves the preference and restarts the app
+openbot-dock-ctl.sh island-on    # undoes it, back to the app default
+```
+
+`status` reports the island state (`island=on|off`).
 
 ### IPC
 
 ```bash
-omarchy-shell admin.openbot-dock toggle
-omarchy-shell admin.openbot-dock dock
-omarchy-shell admin.openbot-dock refresh
+omarchy-shell io.github.andrecards.openbot-dock toggle
+omarchy-shell io.github.andrecards.openbot-dock dock
+omarchy-shell io.github.andrecards.openbot-dock refresh
 ```
 
-## Estrutura
+## Known issues
+
+### 🟥 Black flash on the dock (still open)
+
+The dock can **still flash black for a moment when you hover it or when it
+opens**. It does not break anything, but it is visible. This is a known bug and
+it is **not fixed**.
+
+- **Cause:** it is in OpenBot/XWayland, not in the plugin. OpenBot clips the dock
+  window with `setShape`. On Hyprland's XWayland, the area outside the clip shows
+  black until Chromium repaints.
+- **What the plugin can do:** nothing. There is no compositor rule or plugin
+  setting that avoids it. The fix has to come from OpenBot.
+- **OpenBot 0.68.0** reworked the shape code (`#applyShape`): in our drag test
+  (340 events, ~5 captures/s) no black frame showed up, but the flash on hover/open
+  still happens.
+- While the **"Dock size"** slider is being dragged, the dock also flashes black
+  ([nightly-labs/openbot#7780](https://github.com/nightly-labs/openbot/issues/7780)).
+  It stops when the slider is released.
+
+### 🟧 Dock theme does not fully follow Omarchy yet
+
+The **System** option generates an OpenBot palette from the current Omarchy theme
+and regenerates it on every theme change, but **the dock and the OpenBot window
+still do not match the Omarchy theme completely**. Treat the feature as
+experimental and expect visual differences from your Omarchy theme.
+
+- The palette generator was tested on all 26 installed themes (light and dark)
+  and produces a valid palette for each; the gap is in how OpenBot applies it,
+  not in producing it.
+- Switching System/Default restarts OpenBot (the app only reads the choice at
+  startup).
+
+### 🟧 Clicks on the transparent area do not pass through
+
+**Clicks on the transparent area around the dock do not reach the apps below**
+(official OpenBot 0.68.0). The dock window is a fixed 562×512 rectangle, bigger
+than the visible part. OpenBot clips only the visible shape on X11, and Hyprland
+hands the pointer to the whole XWayland surface.
+
+A fix exists in OpenBot (the dock window shrinks to the dock size when nobody is
+using it): in a local fork it raised pointer delivery from 2/6 to 6/6 test points.
+It has **not been sent upstream yet**.
+
+### 🟨 Other limitations
+
+- OpenBot's **Dynamic Island** is always created at the top center of the screen
+  and the app has no position option. If you use it anyway, it shares space with
+  the Omarchy bar; the clean way is to keep it off (`island-off`).
+- The dock sits slightly above the vertical center until you drag it: the
+  position is an offset that OpenBot stores per monitor.
+- Installing from the marketplace gives you **only the widget**. The Hyprland
+  rule and the theme hook come from `install.sh`.
+- The dock does not exist on native Wayland: OpenBot only creates it under
+  XWayland, so the plugin forces the app to start in XWayland.
+- Tested **only** on Hyprland with the Lua config and OpenBot 0.68.0 as an
+  AppImage. With old `.conf` configs the rule must be converted to `windowrulev2`.
+- Cosmetic: in the Portuguese panel, the label "Dock acima das outras janelas"
+  is cut off with an ellipsis.
+
+## Project layout
 
 ```
-plugin/                 plugin do Omarchy Shell
-  manifest.json         manifesto (schema 1)
-  Widget.qml            ícone da barra e painel
-  openbot-dock-ctl.sh   status/abrir/ligar/desligar/reiniciar/tema
-  openbot-omarchy-palette.py  gera a paleta "Omarchy" do OpenBot
-  i18n/                 textos em inglês e português
-  icons/                logo do OpenBot (SVG, variantes clara e escura)
+manifest.json               plugin manifest (schema 1)
+Widget.qml                  bar icon and panel
+openbot-dock-ctl.sh         status/open/on/off/restart/theme
+openbot-omarchy-palette.py  generates OpenBot's "Omarchy" palette
+i18n/                       strings in English and Portuguese
+icons/                      OpenBot logo (SVG, light and dark variants)
 hypr/
-  openbot-dock.lua      regras de janela (dock e janela principal)
+  openbot-dock.lua          window rules (dock and main window)
 hooks/theme-set.d/
-  openbot-palette       gancho do Omarchy: regenera a paleta ao trocar de tema
+  openbot-palette           Omarchy hook: regenerates the palette on theme change
 docs/
-  ARQUITETURA.md        decisões técnicas e por quês
-install.sh              instalador/desinstalador
+  ARQUITETURA.md            technical decisions and reasons (Portuguese)
+  screenshots/              images used in this README
+install.sh                  full installer/uninstaller (plugin + rule + hook)
 ```
 
-## Capturas de tela
+## Contributing
 
-As imagens entram aqui **depois da avaliação manual**, quando o visual estiver
-fechado. Enquanto isso, o repositório fica sem capturas para não fixar um
-estado que ainda vai mudar.
+See [CONTRIBUTING.md](CONTRIBUTING.md) (Portuguese). Changes are listed in
+[CHANGELOG.md](CHANGELOG.md). Since the plugin touches windows, the bar and the
+OpenBot app, always test on a real Omarchy/Hyprland session.
 
-## Limitações conhecidas
+## License
 
-- A **Dynamic Island** do OpenBot nasce sempre no topo do centro da tela e não
-  tem opção de posição no app. Se você quiser usá-la mesmo assim, ela vai
-  dividir espaço com a barra do Omarchy; o caminho limpo é mantê-la desligada
-  (`island-off`).
-- O dock fica ligeiramente acima do centro vertical até ser arrastado: a
-  posição é um deslocamento guardado pelo OpenBot por monitor.
-- **Cliques na área transparente em volta do dock não chegam aos apps de baixo**
-  (OpenBot 0.68.0 oficial). A janela do dock é um retângulo fixo (562×512) maior
-  que a parte visível. O OpenBot recorta só a forma visível em X11; o Hyprland
-  entrega o ponteiro à superfície XWayland inteira. A correção é no OpenBot: a
-  janela do dock passa a ter o tamanho do dock quando ninguém o usa. Ela está no
-  branch `fix/xwayland-agent-dock` do clone em
-  `/home/admin/Projects/ia-e-agentes/.lab/omarchy-openbot/openbot` (build local
-  instalado neste computador; os AppImages oficiais ficam em
-  `~/.local/share/AppImages/oficial-backup/`) e será proposta ao OpenBot como PR.
-- No OpenBot 0.68.0, o dock pisca em preto enquanto o controle "Tamanho do dock"
-  é arrastado ([nightly-labs/openbot#7780](https://github.com/nightly-labs/openbot/issues/7780)).
-- Testado apenas em Hyprland com config Lua. Em configs `.conf` antigas a regra
-  precisa ser convertida para `windowrulev2`.
-
-## Licença
-
-MIT — veja [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).

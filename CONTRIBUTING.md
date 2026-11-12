@@ -25,8 +25,8 @@ Tipos usados: `feat`, `fix`, `docs`, `build`, `chore`, `refactor`.
 ## Checklist de teste
 
 ```bash
-omarchy plugin validate ~/.config/omarchy/plugins/admin.openbot-dock
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh status
+omarchy plugin validate ~/.config/omarchy/plugins/io.github.andrecards.openbot-dock
+~/.config/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-dock-ctl.sh status
 omarchy restart shell
 ```
 

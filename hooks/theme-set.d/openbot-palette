@@ -2,6 +2,6 @@
 # OpenBot Agent Dock: ao trocar o tema do Omarchy, regenera a paleta "Omarchy" do OpenBot
 # (~/.config/OpenBot/themes/omarchy.json). O OpenBot vigia essa pasta e aplica a paleta ao
 # vivo, sem reiniciar, quando ela está escolhida (botão "Sistema" do widget).
-script="${XDG_CONFIG_HOME:-$HOME/.config}/omarchy/plugins/admin.openbot-dock/openbot-omarchy-palette.py"
+script="${XDG_CONFIG_HOME:-$HOME/.config}/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-omarchy-palette.py"
 [[ -f $script ]] || exit 0
 python3 -I "$script" >/dev/null
