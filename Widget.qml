@@ -11,7 +11,7 @@ import qs.Ui
 // janela sobre as outras, na borda da tela, no estilo do dock do macOS.
 BarWidget {
   id: root
-  moduleName: "admin.openbot-dock"
+  moduleName: "io.github.andrecards.openbot-dock"
 
   // O script que fala com o app: status, abrir, ligar/desligar o dock.
   readonly property string scriptPath: String(Qt.resolvedUrl("openbot-dock-ctl.sh")).replace(/^file:\/\//, "")
@@ -60,7 +60,7 @@ BarWidget {
   function togglePopup() { root.popupOpen = !root.popupOpen }
 
   IpcHandler {
-    target: "admin.openbot-dock"
+    target: "io.github.andrecards.openbot-dock"
 
     function toggle(): void { root.togglePopup() }
     function refresh(): void { root.refresh() }

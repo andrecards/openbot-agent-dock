@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "admin.openbot-dock",
+  "id": "io.github.andrecards.openbot-dock",
   "name": "OpenBot Dock",
   "version": "1.5.1",
   "author": "Andre Cardoso",

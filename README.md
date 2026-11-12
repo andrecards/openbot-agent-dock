@@ -7,7 +7,8 @@ próprio dock nativo do app em vez de redesenhar um dock em QML.
 O widget mostra o estado do OpenBot na barra, abre um painel de controle e
 liga/desliga o modo flutuante do dock.
 
-> **Status:** em desenvolvimento ativo. Nada publicado ainda — repositório privado.
+> **Status:** funcional, com um bug visual conhecido do OpenBot (veja
+> [Limitações conhecidas](#limitações-conhecidas)).
 
 ## O que o plugin faz
 
@@ -18,7 +19,7 @@ liga/desliga o modo flutuante do dock.
   reiniciar o app.
 - **Comando de terminal** (`openbot-dock-ctl.sh`) com `status`, `open`,
   `dock-on`, `dock-off`, `restart`, `island-off` e `island-on`.
-- **IPC do shell** para automações: `omarchy-shell admin.openbot-dock toggle`.
+- **IPC do shell** para automações: `omarchy-shell io.github.andrecards.openbot-dock toggle`.
 
 ## Como o dock aparece
 
@@ -48,13 +49,22 @@ inteira com `unknown field 'no_border'`, deixando também de aplicar o `pin`.
 
 ## Instalação
 
+Pelo marketplace de plugins do Omarchy:
+
 ```bash
-git clone git@github.com:andrecards/openbot-agent-dock.git
+omarchy plugin add https://github.com/andrecards/openbot-agent-dock.git --enable
+```
+
+Isso instala só o widget. Para o dock flutuar sobre as janelas, falta a regra do
+Hyprland e o gancho de tema, que o `install.sh` instala:
+
+```bash
+git clone https://github.com/andrecards/openbot-agent-dock.git
 cd openbot-agent-dock
 ./install.sh
 ```
 
-O `install.sh` copia o plugin para `~/.config/omarchy/plugins/admin.openbot-dock`,
+O `install.sh` copia o plugin para `~/.config/omarchy/plugins/io.github.andrecards.openbot-dock`,
 instala a regra do Hyprland em `~/.config/hypr/openbot-dock.lua`, adiciona o
 `require` no `hyprland.lua` (idempotente) e habilita o widget na barra.
 
@@ -80,14 +90,14 @@ Para remover:
 ### Linha de comando
 
 ```bash
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh status
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh dock-on
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh dock-off
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh restart
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh island-off
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh island-on
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh theme-system
-~/.config/omarchy/plugins/admin.openbot-dock/openbot-dock-ctl.sh theme-default
+~/.config/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-dock-ctl.sh status
+~/.config/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-dock-ctl.sh dock-on
+~/.config/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-dock-ctl.sh dock-off
+~/.config/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-dock-ctl.sh restart
+~/.config/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-dock-ctl.sh island-off
+~/.config/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-dock-ctl.sh island-on
+~/.config/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-dock-ctl.sh theme-system
+~/.config/omarchy/plugins/io.github.andrecards.openbot-dock/openbot-dock-ctl.sh theme-default
 ```
 
 ### Tema do dock: Sistema ou Padrão
@@ -125,35 +135,32 @@ O `status` informa em que estado a ilha está (`island=on|off`).
 ### IPC
 
 ```bash
-omarchy-shell admin.openbot-dock toggle
-omarchy-shell admin.openbot-dock dock
-omarchy-shell admin.openbot-dock refresh
+omarchy-shell io.github.andrecards.openbot-dock toggle
+omarchy-shell io.github.andrecards.openbot-dock dock
+omarchy-shell io.github.andrecards.openbot-dock refresh
 ```
 
 ## Estrutura
 
 ```
-plugin/                 plugin do Omarchy Shell
-  manifest.json         manifesto (schema 1)
-  Widget.qml            ícone da barra e painel
-  openbot-dock-ctl.sh   status/abrir/ligar/desligar/reiniciar/tema
-  openbot-omarchy-palette.py  gera a paleta "Omarchy" do OpenBot
-  i18n/                 textos em inglês e português
-  icons/                logo do OpenBot (SVG, variantes clara e escura)
+manifest.json           manifesto do plugin (schema 1)
+Widget.qml              ícone da barra e painel
+openbot-dock-ctl.sh     status/abrir/ligar/desligar/reiniciar/tema
+openbot-omarchy-palette.py  gera a paleta "Omarchy" do OpenBot
+i18n/                   textos em inglês e português
+icons/                  logo do OpenBot (SVG, variantes clara e escura)
 hypr/
   openbot-dock.lua      regras de janela (dock e janela principal)
 hooks/theme-set.d/
   openbot-palette       gancho do Omarchy: regenera a paleta ao trocar de tema
 docs/
   ARQUITETURA.md        decisões técnicas e por quês
-install.sh              instalador/desinstalador
+install.sh              instalador/desinstalador completo (plugin + regra + gancho)
 ```
 
 ## Capturas de tela
 
-As imagens entram aqui **depois da avaliação manual**, quando o visual estiver
-fechado. Enquanto isso, o repositório fica sem capturas para não fixar um
-estado que ainda vai mudar.
+_(a preencher)_
 
 ## Limitações conhecidas
 
@@ -166,12 +173,15 @@ estado que ainda vai mudar.
 - **Cliques na área transparente em volta do dock não chegam aos apps de baixo**
   (OpenBot 0.68.0 oficial). A janela do dock é um retângulo fixo (562×512) maior
   que a parte visível. O OpenBot recorta só a forma visível em X11; o Hyprland
-  entrega o ponteiro à superfície XWayland inteira. A correção é no OpenBot: a
-  janela do dock passa a ter o tamanho do dock quando ninguém o usa. Ela está no
-  branch `fix/xwayland-agent-dock` do clone em
-  `/home/admin/Projects/ia-e-agentes/.lab/omarchy-openbot/openbot` (build local
-  instalado neste computador; os AppImages oficiais ficam em
-  `~/.local/share/AppImages/oficial-backup/`) e será proposta ao OpenBot como PR.
+  entrega o ponteiro à superfície XWayland inteira. A correção é no OpenBot (a janela do dock passa a ter o tamanho do dock
+  quando ninguém o usa); ela existe num fork local e ainda não foi enviada ao
+  projeto.
+- **Piscada preta no dock ao passar o mouse ou ao abrir** (bug conhecido, ainda
+  aberto). O funcionamento não é afetado, mas o dock pode piscar em preto por
+  instantes. A causa está no OpenBot/XWayland, não no plugin: o OpenBot recorta
+  a janela do dock com `setShape` e, no XWayland do Hyprland, a área fora do
+  recorte aparece preta até o Chromium repintar. Sem correção possível pelo
+  plugin ou pelo compositor; precisa vir do OpenBot.
 - No OpenBot 0.68.0, o dock pisca em preto enquanto o controle "Tamanho do dock"
   é arrastado ([nightly-labs/openbot#7780](https://github.com/nightly-labs/openbot/issues/7780)).
 - Testado apenas em Hyprland com config Lua. Em configs `.conf` antigas a regra

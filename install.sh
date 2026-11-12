@@ -2,7 +2,7 @@
 # Instala (ou remove) o widget OpenBot Dock no Omarchy Shell.
 #
 # O que faz:
-#   1. copia o plugin para ~/.config/omarchy/plugins/admin.openbot-dock
+#   1. copia o plugin para ~/.config/omarchy/plugins/io.github.andrecards.openbot-dock
 #   2. instala a regra do Hyprland em ~/.config/hypr/openbot-dock.lua
 #   3. garante o require("hypr.openbot-dock") no hyprland.lua (idempotente)
 #   4. instala o gancho de tema do Omarchy (paleta "Omarchy" do OpenBot)
@@ -16,7 +16,7 @@
 
 set -uo pipefail
 
-PLUGIN_ID="admin.openbot-dock"
+PLUGIN_ID="io.github.andrecards.openbot-dock"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
 PLUGIN_DIR="$CONFIG/omarchy/plugins/$PLUGIN_ID"
@@ -71,7 +71,9 @@ fi
 
 echo "→ instalando o plugin em $PLUGIN_DIR"
 mkdir -p "$PLUGIN_DIR"
-cp -a "$ROOT/plugin/." "$PLUGIN_DIR/"
+for item in manifest.json Widget.qml openbot-dock-ctl.sh openbot-omarchy-palette.py i18n icons; do
+  cp -a "$ROOT/$item" "$PLUGIN_DIR/"
+done
 chmod +x "$PLUGIN_DIR/openbot-dock-ctl.sh" "$PLUGIN_DIR/openbot-omarchy-palette.py"
 
 echo "→ instalando o gancho de tema em $HOOK_FILE"

@@ -5,6 +5,9 @@ e versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Alterado
+- Preparação para o marketplace: `manifest.json` e arquivos do plugin movidos para a raiz do repositório; ID do plugin passa de `admin.openbot-dock` para `io.github.andrecards.openbot-dock` (reaplicar o widget na barra após atualizar); relatórios internos removidos de `docs/`.
+
 ### Problema conhecido: correção pronta no OpenBot
 - Cliques perdidos perto do dock (área transparente da janela 562×512): corrigido no código do OpenBot, não no plugin. No branch `fix/xwayland-agent-dock` do clone, a janela do dock fica do tamanho do dock em repouso (6×118 px na faixa da borda) e cresce só enquanto o dock está em uso ou se movendo. Medido no Hyprland 0.56.2 (escala 1,25) com um app Wayland embaixo da área do dock: o app recebeu o ponteiro em 6 de 6 pontos com a correção, contra 2 de 6 no 0.68.0 oficial. Também verificados no build final: chat do dock com teclado real, arrastar o dock e mudar o "Dock size" (a janela fica cheia por 2 s durante mudanças rápidas de tamanho e volta a encaixar). Com isso o Hyprland com patch "clickthrough" e o ajudante `openbot-dock-inputshape.py` foram descartados.
 - Ferramenta de teste: o `ydotoold` pode ficar ativo sem mover o cursor (dispositivo virtual travado desde o login); `systemctl --user restart ydotool` resolve. Conferir com `hyprctl cursorpos` antes de medir.
@@ -86,6 +89,6 @@ e versionamento [SemVer](https://semver.org/lang/pt-BR/).
 - Widget de barra com painel de controle do Agent Dock.
 - Script `openbot-dock-ctl.sh` com `status`, `open`, `dock-on`, `dock-off` e
   `restart`.
-- IPC `admin.openbot-dock` (`toggle`, `dock`, `refresh`).
+- IPC `io.github.andrecards.openbot-dock` (`toggle`, `dock`, `refresh`).
 - Regra do Hyprland que fixa o dock flutuante em todos os workspaces.
 - Textos em inglês e português.
