@@ -5,6 +5,9 @@ e versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Adicionado
+- README em inglês (`README.md`) e em português (`README.pt-BR.md`), com seletor de idioma, galeria de capturas (`docs/screenshots/`) e seção de problemas conhecidos: piscada preta ainda aberta, tema do Omarchy ainda não totalmente aplicado, cliques que não atravessam a área transparente e demais limitações.
+
 ### Alterado
 - Preparação para o marketplace: `manifest.json` e arquivos do plugin movidos para a raiz do repositório; ID do plugin passa de `admin.openbot-dock` para `io.github.andrecards.openbot-dock` (reaplicar o widget na barra após atualizar); relatórios internos removidos de `docs/`.
 
